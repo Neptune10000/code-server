@@ -8,8 +8,8 @@ import { StaticHttpProvider } from "./app/static"
 import { UpdateHttpProvider } from "./app/update"
 import { VscodeHttpProvider } from "./app/vscode"
 import { Args, bindAddrFromAllSources, optionDescriptions, parse, readConfigFile, setDefaults } from "./cli"
-import { AuthType, HttpServer, HttpServerOptions } from "./http"
-import { generateCertificate, hash, open, humanPath } from "./util"
+import { AuthType, HttpPlugin, HttpServer, HttpServerOptions } from "./http"
+import { generateCertificate, hash, humanPath, open } from "./util"
 import { ipcMain, wrap } from "./wrapper"
 
 process.on("uncaughtException", (error) => {
@@ -76,6 +76,15 @@ const main = async (args: Args, cliArgs: Args, configArgs: Args): Promise<void> 
   httpServer.registerHttpProvider("/proxy", ProxyHttpProvider)
   httpServer.registerHttpProvider("/login", LoginHttpProvider, args.config!, envPassword)
   httpServer.registerHttpProvider("/static", StaticHttpProvider)
+
+  try {
+    const plugin = require("./httpPlugin") as HttpPlugin
+    plugin(httpServer, args)
+  } catch (error) {
+    if (error.code !== "MODULE_NOT_FOUND") {
+      logger.error(error.message)
+    }
+  }
 
   ipcMain().onDispose(() => httpServer.dispose())
 

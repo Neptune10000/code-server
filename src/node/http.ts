@@ -13,8 +13,11 @@ import * as tls from "tls"
 import * as url from "url"
 import { HttpCode, HttpError } from "../common/http"
 import { normalize, Options, plural, split } from "../common/util"
+import { Args } from "./cli"
 import { SocketProxyProvider } from "./socket"
 import { getMediaMime, paths } from "./util"
+
+export type HttpPlugin = (s: HttpServer, a: Args) => void
 
 export type Cookies = { [key: string]: string[] | undefined }
 export type PostData = { [key: string]: string | string[] | undefined }
