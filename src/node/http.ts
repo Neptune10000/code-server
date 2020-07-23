@@ -670,8 +670,10 @@ export class HttpServer {
       if (request.headers["content-type"] === "application/json") {
         write({
           code,
+          mime: "application/json",
           content: {
             error: e.message,
+            ...(e.details || {}),
           },
         })
       } else {
